@@ -1,0 +1,65 @@
+growing_degree_days
+days
+temp min/max
+target
+GDD.total
+GDD.alarm
+
+{ Date.new(date) => gdd_for_date }
+
+class GDDForecaster
+  # { day_one: x, day_two: x + y, day_three: x + y + z }
+  def initialize(gdd_collection_by_date)
+end
+
+class GDDNotifier
+  def initialize(gdd_collection_by_date:, gdd_target:)
+    @gdd_by_date = gdd_collection_by_date
+    @gdd_target = gdd_target
+  end
+
+  def notifier
+    if gdd_total_is_within_gdd_range
+      send_notification
+    else
+      continue_collecting_gdd_data
+    end
+  end
+
+  private
+
+  attr_reader :gdd_by_date, :gdd_target
+end
+
+class GDDAccumulator
+  def self.from_collection(batch)
+    batch.map do |item| 
+      new(
+        date: item.date,
+        min_temp: item.min_temp,
+        max_temp: item.max_temp,
+        base_temp = 50
+      ).calculate
+    end
+  end
+
+  def initialize(date:, min_temp:, max_temp:, base_temp = 50)
+    @date = Date.new(date),
+    @min_temp = min_temp.to_i
+    @max_temp = max_temp.to_i
+    @base_temp = base_temp
+  end
+
+  def calculate
+    [date, gdd]
+  end
+
+  def gdd
+    ((max_temp - min_temp) / 2) - base_temp
+  end
+
+  private
+
+  attr_reader :date, :base_temp, :min_temp, :max_temp
+end
+
